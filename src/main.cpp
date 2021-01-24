@@ -1,7 +1,7 @@
 #include "main.h"
 
 String inMsg;
-uint32_t sleepingPeriod = 10000;
+uint32_t sleepingPeriod = 600000;
 
 void setup() {
 }
@@ -12,62 +12,10 @@ void presentation() {
 }
 
 void loop() {
-    int nodeId;
-    int ChildId;
-    float value;
-    String outMsg;
     static int attempts = 0;
-
-    //отправка первого сообщения============================================================================
-    nodeId = 0;
-    ChildId = 0;
-    value = random(100, 150);
-    send(msg.setDestination(nodeId).setSensor(ChildId).set(value, 2), true);
-    outMsg = String(nodeId) + "," +
-             String(ChildId) + "," +
-             String(value) + ";";
-    Serial.println("sended: " + outMsg);
-    wait(1500, C_SET, S_CUSTOM);
-    if (inMsg == outMsg) {
-        Serial.println("Msg 1 delivered");
-        attempts = 0;
-        //sleep(sleepingPeriod);
-        inMsg = "";
-    } else {
-        attempts++;
-        Serial.println("Msg 1 not delivered, attempt: " + String(attempts));
-        if (attempts >= 5) {
-            attempts = 0;
-            Serial.println("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
-            sleep(sleepingPeriod);
-        }
-    }
+    sendMsg(attempts, 0, 0, V_TEMP, random(1000, 1500));
     Serial.println("==============================================");
-
-    //отправка второго сообщения============================================================================
-    nodeId = 0;
-    ChildId = 1;
-    value = random(1000, 1500);
-    send(msg.setDestination(nodeId).setSensor(ChildId).set(value, 2), true);
-    outMsg = String(nodeId) + "," +
-             String(ChildId) + "," +
-             String(value) + ";";
-    Serial.println("sended: " + outMsg);
-    wait(1500, C_SET, S_CUSTOM);
-    if (inMsg == outMsg) {
-        Serial.println("Msg 2 delivered");
-        attempts = 0;
-        sleep(sleepingPeriod);
-        inMsg = "";
-    } else {
-        attempts++;
-        Serial.println("Msg 2 not delivered, attempt: " + String(attempts));
-        if (attempts >= 5) {
-            attempts = 0;
-            Serial.println("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + "sec");
-            sleep(sleepingPeriod);
-        }
-    }
+    sendMsg(attempts, 0, 1, V_TEMP, random(1000, 1500));
     Serial.println("==============================================");
 }
 
@@ -78,6 +26,31 @@ void receive(const MyMessage &message) {
                 parseToString(message) + ";";
 
         Serial.println("received: " + inMsg);
+    }
+}
+
+void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value) {
+    MyMessage msg(ChildId, dataType);
+    send(msg.setDestination(nodeId).setSensor(ChildId).set(value, 2), true);  //отправляем сообщение
+    String outMsg = String(nodeId) + "," +                                    //формируем его сигнатуру в виде 0,0,12,5;
+                    String(ChildId) + "," +
+                    String(value) + ";";
+    Serial.println("sended: " + outMsg);
+    wait(1500, C_SET, S_CUSTOM);  //ждем пока получим echo в функции receive
+    if (inMsg == outMsg) {        //если сигнатура полученного эха совпала с отправленным сообщением - сообщение было доставлено
+        Serial.println("Msg " + String(ChildId) + " delivered");
+        attempts = 0;
+        sleep(sleepingPeriod);
+        inMsg = "";
+    } else {  //если не совпала значит в эхо ничего не пришло
+        attempts++;
+        _transportSM.failedUplinkTransmissions = 0;  //сбросим счетчик в ноль что бы нода не ушла в поиск сети
+        Serial.println("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
+        if (attempts >= 5) {
+            attempts = 0;
+            Serial.println("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
+            sleep(sleepingPeriod);
+        }
     }
 }
 

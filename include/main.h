@@ -8,6 +8,7 @@
 #define MY_RADIO_NRF5_ESB
 
 #include <MySensors.h>
+#include "core/MyTransport.h"
 
 #define CHILD_ID 0  
 //#define MY_BAUD_RATE 115200
@@ -17,6 +18,6 @@ MyMessage msg(CHILD_ID, V_TEMP);
 
 extern uint32_t sleepingPeriod;
 extern String inMsg;
-
+void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value);
 extern void receive(const MyMessage &message);
 extern String parseToString(const MyMessage &message);
