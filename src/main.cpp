@@ -19,16 +19,6 @@ void loop() {
     Serial.println("==============================================");
 }
 
-void receive(const MyMessage &message) {
-    if (message.isEcho()) {
-        inMsg = String(message.getSender()) + "," +
-                String(message.getSensor()) + "," +
-                parseToString(message) + ";";
-
-        Serial.println("received: " + inMsg);
-    }
-}
-
 void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value) {
     MyMessage msg(ChildId, dataType);
     send(msg.setDestination(nodeId).setSensor(ChildId).set(value, 2), true);  //отправляем сообщение
@@ -51,6 +41,16 @@ void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t data
             Serial.println("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
             sleep(sleepingPeriod);
         }
+    }
+}
+
+void receive(const MyMessage &message) {
+    if (message.isEcho()) {
+        inMsg = String(message.getSender()) + "," +
+                String(message.getSensor()) + "," +
+                parseToString(message) + ";";
+
+        Serial.println("received: " + inMsg);
     }
 }
 
