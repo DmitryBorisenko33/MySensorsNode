@@ -5,7 +5,7 @@
 #define MY_RADIO_NRF5_ESB
 
 #include <MySensors.h>
-//#include "core/MyTransport.h"
+#include <pinMap.h>
 
 extern uint32_t sleepingPeriod;
 extern uint16_t attamptsNumber;
