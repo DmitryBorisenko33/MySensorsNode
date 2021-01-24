@@ -17,7 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "variant.h"
+#include "pinMap.h"
 
 const uint32_t g_ADigitalPinMap[] = {
   // D0 - D7
