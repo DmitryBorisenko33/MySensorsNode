@@ -3,9 +3,8 @@
 #define MY_PASSIVE_NODE
 #define MY_NODE_ID 100
 #define MY_RADIO_NRF5_ESB
-
 #include <MySensors.h>
-#include <pinMap.h>
+#include <variant.h>
 
 extern uint32_t sleepingPeriod;
 extern uint16_t attamptsNumber;
