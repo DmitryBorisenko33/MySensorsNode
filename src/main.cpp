@@ -1,7 +1,7 @@
 #include "main.h"
 
 String inMsg;
-uint32_t sleepingPeriod = 600000;
+uint32_t sleepingPeriod = 10000;
 
 void setup() {
 }
@@ -26,9 +26,12 @@ void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t data
                     String(ChildId) + "," +
                     String(value) + ";";
     Serial.println("sended: " + outMsg);
-    wait(1500, C_SET, S_CUSTOM);  //ждем пока получим echo в функции receive
+    long prevMillis = millis();
+    //wait(5);
+    wait(1500, C_SET, dataType);  //ждем пока получим echo в функции receive
+    long ackTime =  millis() - prevMillis;
     if (inMsg == outMsg) {        //если сигнатура полученного эха совпала с отправленным сообщением - сообщение было доставлено
-        Serial.println("Msg " + String(ChildId) + " delivered");
+        Serial.println("Msg " + String(ChildId) + " delivered, ack time = " + String(ackTime) + " ms");
         attempts = 0;
         sleep(sleepingPeriod);
         inMsg = "";
