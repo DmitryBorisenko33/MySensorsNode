@@ -17,7 +17,7 @@ void loop() {
     static int attempts = 0;
     sendMsgEchoAck(attempts, 0, 0, V_TEMP, random(1000, 1500), false);
     Serial.println("==============================================");
-    sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(100, 150), true);
+    sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
     Serial.println("==============================================");
     //sendMsgFastAck(attempts, 2, V_TEMP, random(10, 15), false);
     //Serial.println("==============================================");
