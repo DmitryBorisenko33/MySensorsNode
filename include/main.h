@@ -12,5 +12,6 @@ extern uint16_t attamptsNumber;
 extern String inMsg;
 
 extern void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep);
+extern void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep);
 extern void receive(const MyMessage &message);
 extern String parseToString(const MyMessage &message);
