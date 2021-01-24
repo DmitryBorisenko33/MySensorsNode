@@ -18,6 +18,6 @@ MyMessage msg(CHILD_ID, V_TEMP);
 
 extern uint32_t sleepingPeriod;
 extern String inMsg;
-void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value);
+extern void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep);
 extern void receive(const MyMessage &message);
 extern String parseToString(const MyMessage &message);

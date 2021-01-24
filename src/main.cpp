@@ -13,13 +13,13 @@ void presentation() {
 
 void loop() {
     static int attempts = 0;
-    sendMsg(attempts, 0, 0, V_TEMP, random(1000, 1500));
+    sendMsg(attempts, 0, 0, V_TEMP, random(1000, 1500), false);
     Serial.println("==============================================");
-    sendMsg(attempts, 0, 1, V_TEMP, random(1000, 1500));
+    sendMsg(attempts, 0, 1, V_TEMP, random(100, 150), true);
     Serial.println("==============================================");
 }
 
-void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value) {
+void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep) {
     MyMessage msg(ChildId, dataType);
     send(msg.setDestination(nodeId).setSensor(ChildId).set(value, 2), true);  //отправляем сообщение
     String outMsg = String(nodeId) + "," +                                    //формируем его сигнатуру в виде 0,0,12.5;
@@ -28,11 +28,11 @@ void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t data
     Serial.println("sended: " + outMsg);
     long prevMillis = millis();
     wait(1500, C_SET, dataType);  //ждем пока получим echo в функции receive
-    long ackTime =  millis() - prevMillis;
-    if (inMsg == outMsg) {        //если сигнатура полученного эха совпала с отправленным сообщением - сообщение было доставлено
+    long ackTime = millis() - prevMillis;
+    if (inMsg == outMsg) {  //если сигнатура полученного эха совпала с отправленным сообщением - сообщение было доставлено
         Serial.println("Msg " + String(ChildId) + " delivered, ack time = " + String(ackTime) + " ms");
         attempts = 0;
-        sleep(sleepingPeriod);
+        if(goToSleep) sleep(sleepingPeriod);
         inMsg = "";
     } else {  //если не совпала значит в эхо ничего не пришло
         attempts++;
