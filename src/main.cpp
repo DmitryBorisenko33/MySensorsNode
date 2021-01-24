@@ -6,8 +6,6 @@ uint16_t attamptsNumber = 5;      //количество попыток повт
 
 void setup() {
     Serial.println("====================Started=====================");
-    pinMode(8, OUTPUT);
-    digitalWrite(8, HIGH);
 }
 
 void presentation() {
@@ -16,13 +14,18 @@ void presentation() {
     present(1, S_TEMP);
 }
 
+//void before() {
+//    //NRF_POWER->DCDCEN = 1;
+//    //sleep(400);
+//}
+
 void loop() {
     static int attempts = 0;
 
-    //sendMsgEchoAck(attempts, 0, 0, V_TEMP, random(1000, 1500), false);
-    //Serial.println("==============================================");
-    //sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
-    //Serial.println("==============================================");
+    sendMsgEchoAck(attempts, 0, 0, V_TEMP, random(1000, 1500), false);
+    Serial.println("==============================================");
+    sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
+    Serial.println("==============================================");
 
     //sendMsgFastAck(attempts, 2, V_TEMP, random(10, 15), false);
     //Serial.println("==============================================");
