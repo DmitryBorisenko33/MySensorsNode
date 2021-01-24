@@ -1,25 +1,27 @@
 #include "main.h"
 
-String inMsg;
-uint32_t sleepingPeriod = 10000;
+String inMsg = "";
+uint32_t sleepingPeriod = 10000; //время сна в милисекундах
+uint16_t attamptsNumber = 5; //количество попыток повторных пересылок сообщений
 
 void setup() {
 }
 
 void presentation() {
-    sendSketchInfo("Passive node", "1.0");
-    present(CHILD_ID, S_TEMP);
+    sendSketchInfo("IoT Manager Node", "1.0.0");
+    present(0, S_TEMP);
+    present(1, S_TEMP);
 }
 
 void loop() {
     static int attempts = 0;
-    sendMsg(attempts, 0, 0, V_TEMP, random(1000, 1500), false);
+    sendMsgEchoAck(attempts, 0, 0, V_TEMP, random(1000, 1500), false);
     Serial.println("==============================================");
-    sendMsg(attempts, 0, 1, V_TEMP, random(100, 150), true);
+    sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(100, 150), true);
     Serial.println("==============================================");
 }
 
-void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep) {
+void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep) {
     MyMessage msg(ChildId, dataType);
     send(msg.setDestination(nodeId).setSensor(ChildId).set(value, 2), true);  //отправляем сообщение
     String outMsg = String(nodeId) + "," +                                    //формируем его сигнатуру в виде 0,0,12.5;
@@ -38,7 +40,7 @@ void sendMsg(int &attempts, int nodeId, int ChildId, const mysensors_data_t data
         attempts++;
         _transportSM.failedUplinkTransmissions = 0;  //сбросим счетчик в ноль что бы нода не ушла в поиск сети
         Serial.println("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
-        if (attempts >= 5) {
+        if (attempts >= attamptsNumber) {
             attempts = 0;
             Serial.println("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
             sleep(sleepingPeriod);
