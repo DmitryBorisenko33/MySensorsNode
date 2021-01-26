@@ -8,9 +8,9 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "d:/Programming/Projects/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/include",
-                "d:/Programming/Projects/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/src",
-                "d:/Programming/Projects/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/.pio/libdeps/nrf52_dk/MySensors",
+                "d:/Programming/Projects/MySensors/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/include",
+                "d:/Programming/Projects/MySensors/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/src",
+                "d:/Programming/Projects/MySensors/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/.pio/libdeps/nrf52_dk/MySensors",
                 "C:/Users/rises/.platformio/packages/framework-arduinonordicnrf5/libraries/SPI",
                 "C:/Users/rises/.platformio/packages/framework-arduinonordicnrf5/libraries/Wire",
                 "C:/Users/rises/.platformio/packages/framework-arduinonordicnrf5/cores/nRF5",
@@ -25,9 +25,9 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "d:/Programming/Projects/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/include",
-                    "d:/Programming/Projects/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/src",
-                    "d:/Programming/Projects/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/.pio/libdeps/nrf52_dk/MySensors",
+                    "d:/Programming/Projects/MySensors/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/include",
+                    "d:/Programming/Projects/MySensors/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/src",
+                    "d:/Programming/Projects/MySensors/MySensorsNode/MySensorsPlatformioNode/MySensorsNode/.pio/libdeps/nrf52_dk/MySensors",
                     "C:/Users/rises/.platformio/packages/framework-arduinonordicnrf5/libraries/SPI",
                     "C:/Users/rises/.platformio/packages/framework-arduinonordicnrf5/libraries/Wire",
                     "C:/Users/rises/.platformio/packages/framework-arduinonordicnrf5/cores/nRF5",

@@ -1,8 +1,8 @@
 #include "main.h"
 
 String inMsg = "";
-uint32_t sleepingPeriod = 10000;  //время сна в милисекундах
-uint16_t attamptsNumber = 5;      //количество попыток повторных пересылок сообщений
+uint32_t sleepingPeriod = 30 * 60 * 1000;  //первое число - минуты
+uint16_t attamptsNumber = 3;      //количество попыток повторных пересылок сообщений
 
 void setup() {
     Serial.println("====================Started=====================");
@@ -22,9 +22,13 @@ void presentation() {
 void loop() {
     static int attempts = 0;
 
-    sendMsgEchoAck(attempts, 0, 0, V_TEMP, random(1000, 1500), false);
+    float batteryVoltage = (float)hwCPUVoltage() / 1000.00;
+
+    sendMsgEchoAck(attempts, 0, 0, V_VOLTAGE, batteryVoltage, false);
     Serial.println("==============================================");
-    sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
+    sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(1000, 1500), false);
+    Serial.println("==============================================");
+    sendMsgEchoAck(attempts, 0, 2, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
     Serial.println("==============================================");
 
     //sendMsgFastAck(attempts, 2, V_TEMP, random(10, 15), false);
@@ -60,9 +64,10 @@ void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data
     }
 }
 
+//функция send в моем случае всегда возвращает false, поэтому проверка не работает корректно
 void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep) {
     MyMessage msg(ChildId, dataType);
-    if (send(msg.set(value, 2))) {  //если отправилось
+    if (send(msg.set(value, 2), false)) {  //если отправилось
         attempts = 0;
         Serial.println("Msg " + String(ChildId) + " delivered, value = " + String(value));
         if (goToSleep) sleep(sleepingPeriod);
