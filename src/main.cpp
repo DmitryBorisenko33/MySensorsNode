@@ -14,13 +14,13 @@ void preHwInit() {
 void before() {
     //NRF_POWER->DCDCEN = 1; //включение режима оптимизации питания, расход снижается на 40%, но должны быть установленны емкости
     //NRF_NFCT->TASKS_DISABLE = 1; //останавливает таски, если они есть
-    //NRF_UICR->NFCPINS = 0; //отключает nfc и nfc пины становятся доступными для использования
-    //NRF_NVMC->CONFIG = 0; //
-    //NRF_UART0->ENABLE = 0; //отклчает uart, прежде чем использовать в коде не должно быть serial.print
+    NRF_UICR->NFCPINS = 0;  //отключает nfc и nfc пины становятся доступными для использования
+    NRF_NVMC->CONFIG = 0;   //
+    NRF_UART0->ENABLE = 0;  //отклчает uart, прежде чем использовать в коде не должно быть serial.print
 }
 
 void setup() {
-    Serial.println("====================Started=====================");
+    SerialPrintln("====================Started=====================");
 }
 
 void presentation() {
@@ -35,16 +35,16 @@ void loop() {
     float batteryVoltage = (float)hwCPUVoltage() / 1000.00;
 
     sendMsgEchoAck(attempts, 0, 0, V_VOLTAGE, batteryVoltage, false);
-    Serial.println("==============================================");
+    SerialPrintln("==============================================");
     sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(1000, 1500), false);
-    Serial.println("==============================================");
+    SerialPrintln("==============================================");
     sendMsgEchoAck(attempts, 0, 2, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
-    Serial.println("==============================================");
+    SerialPrintln("==============================================");
 
     //sendMsgFastAck(attempts, 2, V_TEMP, random(10, 15), false);
-    //Serial.println("==============================================");
+    //SerialPrintln("==============================================");
     //sendMsgFastAck(attempts, 3, V_TEMP, random(100, 150), true);
-    //Serial.println("==============================================");
+    //SerialPrintln("==============================================");
 }
 
 void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep) {
@@ -53,22 +53,22 @@ void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data
     String outMsg = String(nodeId) + "," +                                    //формируем его уникальную сигнатуру в виде 0,0,12.5;
                     String(ChildId) + "," +
                     String(value) + ";";
-    Serial.println("sended: " + outMsg);
+    SerialPrintln("sended: " + outMsg);
     long prevMillis = millis();
     wait(1500, C_SET, dataType);  //ждем пока получим echo в функции receive
     long ackTime = millis() - prevMillis;
     if (inMsg == outMsg) {  //если сигнатура полученного эхо совпала с отправленным сообщением - сообщение было доставлено
-        Serial.println("Msg " + String(ChildId) + " delivered, ack time = " + String(ackTime) + " ms");
+        SerialPrintln("Msg " + String(ChildId) + " delivered, ack time = " + String(ackTime) + " ms");
         attempts = 0;
         if (goToSleep) sleep(sleepingPeriod);
         inMsg = "";
     } else {  //если не совпала значит в эхо ничего не пришло
         attempts++;
         _transportSM.failedUplinkTransmissions = 0;  //сбросим счетчик в ноль что бы нода не ушла в поиск сети
-        Serial.println("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
+        SerialPrintln("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
         if (attempts >= attamptsNumber) {
             attempts = 0;
-            Serial.println("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
+            SerialPrintln("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
             sleep(sleepingPeriod);
         }
     }
@@ -79,15 +79,15 @@ void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType,
     MyMessage msg(ChildId, dataType);
     if (send(msg.set(value, 2), false)) {  //если отправилось
         attempts = 0;
-        Serial.println("Msg " + String(ChildId) + " delivered, value = " + String(value));
+        SerialPrintln("Msg " + String(ChildId) + " delivered, value = " + String(value));
         if (goToSleep) sleep(sleepingPeriod);
     } else {
         attempts++;
-        Serial.println("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
+        SerialPrintln("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
         wait(1500);
         if (attempts >= attamptsNumber) {
             attempts = 0;
-            Serial.println("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
+            SerialPrintln("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
             sleep(sleepingPeriod);
         }
     }
@@ -99,7 +99,7 @@ void receive(const MyMessage &message) {
                 String(message.getSensor()) + "," +
                 parseToString(message) + ";";
 
-        Serial.println("received: " + inMsg);
+        SerialPrintln("received: " + inMsg);
     }
 }
 
@@ -133,4 +133,10 @@ String parseToString(const MyMessage &message) {
         default:
             return value;
     }
+}
+
+void SerialPrintln(String text) {
+#ifdef SERIAL_PRINT
+    Serial.println(text);
+#endif
 }

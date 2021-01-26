@@ -1,5 +1,6 @@
 //#define MY_DEBUG
 //#define MY_BAUD_RATE 115200
+//#define SERIAL_PRINT
 #define MY_PASSIVE_NODE
 #define MY_NODE_ID 100
 #define MY_RADIO_NRF5_ESB
@@ -14,3 +15,4 @@ extern void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysenso
 extern void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep);
 extern void receive(const MyMessage &message);
 extern String parseToString(const MyMessage &message);
+extern void SerialPrintln(String text);
