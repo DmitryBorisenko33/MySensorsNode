@@ -14,9 +14,9 @@ void preHwInit() {
 void before() {
     //NRF_POWER->DCDCEN = 1; //включение режима оптимизации питания, расход снижается на 40%, но должны быть установленны емкости
     //NRF_NFCT->TASKS_DISABLE = 1; //останавливает таски, если они есть
-    NRF_UICR->NFCPINS = 0;  //отключает nfc и nfc пины становятся доступными для использования
-    NRF_NVMC->CONFIG = 0;   //
-    NRF_UART0->ENABLE = 0;  //отклчает uart, прежде чем использовать в коде не должно быть serial.print
+    //NRF_UICR->NFCPINS = 0;  //отключает nfc и nfc пины становятся доступными для использования
+    //NRF_NVMC->CONFIG = 0;   //
+    //NRF_UART0->ENABLE = 0;  //отклчает uart, прежде чем использовать в коде не должно быть serial.print
 }
 
 void setup() {
