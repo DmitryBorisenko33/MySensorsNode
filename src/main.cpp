@@ -2,7 +2,22 @@
 
 String inMsg = "";
 uint32_t sleepingPeriod = 30 * 60 * 1000;  //первое число - минуты
-uint16_t attamptsNumber = 3;      //количество попыток повторных пересылок сообщений
+uint16_t attamptsNumber = 3;               //количество попыток повторных пересылок сообщений
+
+void preHwInit() {
+    // pinMode(25, OUTPUT);
+    // digitalWrite(25, HIGH);
+    // pinMode(27, OUTPUT);
+    // digitalWrite(27, HIGH);
+}
+
+void before() {
+    //NRF_POWER->DCDCEN = 1; //включение режима оптимизации питания, расход снижается на 40%, но должны быть установленны емкости
+    //NRF_NFCT->TASKS_DISABLE = 1; //останавливает таски, если они есть
+    //NRF_UICR->NFCPINS = 0; //отключает nfc и nfc пины становятся доступными для использования
+    //NRF_NVMC->CONFIG = 0; //
+    //NRF_UART0->ENABLE = 0; //отклчает uart, прежде чем использовать в коде не должно быть serial.print
+}
 
 void setup() {
     Serial.println("====================Started=====================");
@@ -13,11 +28,6 @@ void presentation() {
     present(0, S_TEMP);
     present(1, S_TEMP);
 }
-
-//void before() {
-//    //NRF_POWER->DCDCEN = 1;
-//    //sleep(400);
-//}
 
 void loop() {
     static int attempts = 0;
