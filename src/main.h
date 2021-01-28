@@ -1,6 +1,6 @@
 //#define MY_DEBUG
 //#define MY_BAUD_RATE 115200
-#define SERIAL_PRINT
+//#define SERIAL_PRINT
 #define MY_PASSIVE_NODE
 #define MY_NODE_ID 100
 #define MY_RADIO_NRF5_ESB

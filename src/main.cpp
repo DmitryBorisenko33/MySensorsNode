@@ -16,7 +16,7 @@ void before() {
     //NRF_NFCT->TASKS_DISABLE = 1; //останавливает таски, если они есть
     //NRF_UICR->NFCPINS = 0;  //отключает nfc и nfc пины становятся доступными для использования
     //NRF_NVMC->CONFIG = 0;   //
-    //NRF_UART0->ENABLE = 0;  //отклчает uart, прежде чем использовать в коде не должно быть serial.print
+    NRF_UART0->ENABLE = 0;  //отклчает uart, прежде чем использовать в коде не должно быть serial.print
 }
 
 void setup() {
@@ -31,12 +31,13 @@ void presentation() {
 
 void loop() {
     static int attempts = 0;
-
     float batteryVoltage = (float)hwCPUVoltage() / 1000.00;
 
     sendMsgEchoAck(attempts, 0, 0, V_VOLTAGE, batteryVoltage, false);
+    wait(1);
     SerialPrintln("==============================================");
     sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(1000, 1500), false);
+    wait(1);
     SerialPrintln("==============================================");
     sendMsgEchoAck(attempts, 0, 2, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
     SerialPrintln("==============================================");
