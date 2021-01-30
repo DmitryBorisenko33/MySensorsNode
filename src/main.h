@@ -4,12 +4,14 @@
 #define MY_PASSIVE_NODE
 #define MY_NODE_ID 100
 #define MY_RADIO_NRF5_ESB
+#define MY_TRANSPORT_WAIT_READY_MS 10
 #include <MySensors.h>
 #include <variant.h>
 
 extern uint32_t sleepingPeriod;
 extern uint16_t attamptsNumber;
 extern String inMsg;
+extern long totalErrors;
 
 extern void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep);
 extern void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep);

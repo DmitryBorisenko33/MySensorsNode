@@ -3,6 +3,10 @@
 String inMsg = "";
 uint32_t sleepingPeriod = 30 * 60 * 1000;  //первое число - минуты
 uint16_t attamptsNumber = 3;               //количество попыток повторных пересылок сообщений
+long totalErrors = 0;
+long fatalErrors = 0;
+
+
 
 void preHwInit() {
     // pinMode(25, OUTPUT);
@@ -34,21 +38,38 @@ void loop() {
     float batteryVoltage = (float)hwCPUVoltage() / 1000.00;
 
     sendMsgEchoAck(attempts, 0, 0, V_VOLTAGE, batteryVoltage, false);
-    wait(1);
+    wait(5);
     SerialPrintln("==============================================");
     sendMsgEchoAck(attempts, 0, 1, V_TEMP, random(1000, 1500), false);
-    wait(1);
+    wait(5);
     SerialPrintln("==============================================");
-    sendMsgEchoAck(attempts, 0, 2, V_TEMP, random(100, 150), true);  // у последнего сообщения в loop должно стоять true, у остальных false
+    sendMsgEchoAck(attempts, 0, 2, V_TEMP, random(100, 150), false);
+    wait(5);
+    SerialPrintln("==============================================");
+    sendMsgEchoAck(attempts, 0, 3, V_CUSTOM, fatalErrors, false);  
+    wait(5);
+    SerialPrintln("==============================================");
+    sendMsgEchoAck(attempts, 0, 4, V_CUSTOM, totalErrors, true);  // у последнего сообщения в loop должно стоять true, у остальных false
     SerialPrintln("==============================================");
 
-    //sendMsgFastAck(attempts, 2, V_TEMP, random(10, 15), false);
-    //SerialPrintln("==============================================");
-    //sendMsgFastAck(attempts, 3, V_TEMP, random(100, 150), true);
+    //sendMsgFastAck(attempts, 0, V_VOLTAGE, batteryVoltage, false);
+    //wait(5);
+    //SerialPrintln("===========================================");
+    //sendMsgFastAck(attempts, 1, V_TEMP, random(1000, 1500), false);
+    //wait(5);
+    //SerialPrintln("===========================================");
+    //sendMsgFastAck(attempts, 2, V_TEMP, random(100, 150), false);
+    //wait(5);
+    //SerialPrintln("===========================================");
+    //sendMsgFastAck(attempts, 3, V_CUSTOM, fatalErrors, false);  
+    //wait(5);
+    //SerialPrintln("===========================================");
+    //sendMsgFastAck(attempts, 4, V_CUSTOM, totalErrors, true);  // у последнего сообщения в loop должно стоять true, у остальных false
     //SerialPrintln("==============================================");
 }
 
 void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep) {
+    inMsg = "";
     MyMessage msg(ChildId, dataType);
     send(msg.setDestination(nodeId).setSensor(ChildId).set(value, 2), true);  //отправляем сообщение
     String outMsg = String(nodeId) + "," +                                    //формируем его уникальную сигнатуру в виде 0,0,12.5;
@@ -62,20 +83,49 @@ void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data
         SerialPrintln("Msg " + String(ChildId) + " delivered, ack time = " + String(ackTime) + " ms");
         attempts = 0;
         if (goToSleep) sleep(sleepingPeriod);
-        inMsg = "";
     } else {  //если не совпала значит в эхо ничего не пришло
         attempts++;
+        totalErrors++;
         _transportSM.failedUplinkTransmissions = 0;  //сбросим счетчик в ноль что бы нода не ушла в поиск сети
         SerialPrintln("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
         if (attempts >= attamptsNumber) {
             attempts = 0;
+            fatalErrors++;
             SerialPrintln("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
             sleep(sleepingPeriod);
         }
     }
 }
 
-//функция send в моем случае всегда возвращает false, поэтому проверка не работает корректно
+void sendMsgEchoAck(int &attempts, int nodeId, int ChildId, const mysensors_data_t dataType, long value, bool goToSleep) {
+    inMsg = "";
+    MyMessage msg(ChildId, dataType);
+    send(msg.setDestination(nodeId).setSensor(ChildId).set(value), true);  //отправляем сообщение
+    String outMsg = String(nodeId) + "," +                                    //формируем его уникальную сигнатуру в виде 0,0,12.5;
+                    String(ChildId) + "," +
+                    String(value) + ";";
+    SerialPrintln("sended: " + outMsg);
+    long prevMillis = millis();
+    wait(1500, C_SET, dataType);  //ждем пока получим echo в функции receive
+    long ackTime = millis() - prevMillis;
+    if (inMsg == outMsg) {  //если сигнатура полученного эхо совпала с отправленным сообщением - сообщение было доставлено
+        SerialPrintln("Msg " + String(ChildId) + " delivered, ack time = " + String(ackTime) + " ms");
+        attempts = 0;
+        if (goToSleep) sleep(sleepingPeriod);
+    } else {  //если не совпала значит в эхо ничего не пришло
+        attempts++;
+        totalErrors++;
+        _transportSM.failedUplinkTransmissions = 0;  //сбросим счетчик в ноль что бы нода не ушла в поиск сети
+        SerialPrintln("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
+        if (attempts >= attamptsNumber) {
+            attempts = 0;
+            fatalErrors++;
+            SerialPrintln("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
+            sleep(sleepingPeriod);
+        }
+    }
+}
+
 void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType, float value, bool goToSleep) {
     MyMessage msg(ChildId, dataType);
     if (send(msg.set(value, 2), false)) {  //если отправилось
@@ -84,10 +134,32 @@ void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType,
         if (goToSleep) sleep(sleepingPeriod);
     } else {
         attempts++;
+        totalErrors++;
         SerialPrintln("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
-        wait(1500);
+        wait(10);
         if (attempts >= attamptsNumber) {
             attempts = 0;
+            fatalErrors++;
+            SerialPrintln("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
+            sleep(sleepingPeriod);
+        }
+    }
+}
+
+void sendMsgFastAck(int &attempts, int ChildId, const mysensors_data_t dataType, long value, bool goToSleep) {
+    MyMessage msg(ChildId, dataType);
+    if (send(msg.set(value), false)) {  //если отправилось
+        attempts = 0;
+        SerialPrintln("Msg " + String(ChildId) + " delivered, value = " + String(value));
+        if (goToSleep) sleep(sleepingPeriod);
+    } else {
+        attempts++;
+        totalErrors++;
+        SerialPrintln("Msg " + String(ChildId) + " not delivered, attempt: " + String(attempts));
+        wait(10);
+        if (attempts >= attamptsNumber) {
+            attempts = 0;
+            fatalErrors++;
             SerialPrintln("Go to sleep, gate missing, try again after " + String(sleepingPeriod / 1000) + " sec");
             sleep(sleepingPeriod);
         }
