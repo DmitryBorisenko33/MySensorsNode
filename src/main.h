@@ -4,7 +4,7 @@
 #define MY_PASSIVE_NODE
 #define MY_NODE_ID 100
 #define MY_RADIO_NRF5_ESB
-#define MY_TRANSPORT_WAIT_READY_MS 10
+//#define MY_TRANSPORT_WAIT_READY_MS 10
 #include <MySensors.h>
 #include <variant.h>
 
